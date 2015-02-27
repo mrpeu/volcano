@@ -8,7 +8,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 				windowHalfX = window.innerWidth / 2,
 				windowHalfY = window.innerHeight / 2,
 
-				camera, scene, renderer, material, material2
+				camera, scene, renderer,
 
 				volcanoes = [];
 
@@ -32,6 +32,43 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
 
+
+
+
+				/**********************
+				 *        Texture     *
+				 **********************/
+
+// 				var size = 256;
+// 				var canvas = document.createElement("canvas");
+// 				canvas.width = size;
+// 				canvas.height = size;
+// 				canvas.style.position = 'absolute';
+// 				canvas.style.top = '0px';
+// 				canvas.style.left = '128px';
+// 				container.appendChild( canvas );
+
+// 				var context = canvas.getContext("2d");
+
+// 				var texture = new TG.Texture( size, size )
+// 					.add( new TG.SinY().frequency( 0.002 ).tint( 0, .42, .61 ) )
+// 					.add( new TG.Noise().tint( 0, 0.5, 0.5 ) )
+// 					.add( new TG.SinY().frequency( 0.0025 ).tint( .2, .62, .81 ) )
+// 					.toImageData(context);
+
+// // 					.mul( new TG.SinY().frequency( 0.004 ) )
+// // 					.mul( new TG.SinY().offset( 32 ).frequency( 0.02 ) )
+// // 					.div( new TG.SinX().frequency( 0.02 ).tint( 8, 5, 4 ) )
+// // 					.add( new TG.Noise().tint( 0.1, 0, 0 ) )
+// // 					.add( new TG.Noise().tint( 0, 0.1, 0 ) )
+// // 					.add( new TG.Noise().tint( 0, 0, 0.1 ) )
+
+// 				context.putImageData( texture, 0, 0 );
+
+
+
+
+
 				var //values = [ 0, 10, 7, 3, 4, 2, 8, 1, 0 ],
 					points =
 						(function( nb ){ var a = []; for( var x = 0; x<nb; x++ ) { a[ x ] = new THREE.Vector3( Math.random(), Math.random(), 0 ); } return a; }
@@ -44,69 +81,87 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 // 					],
 					n_sub = 10,
 					spline = new THREE.ClosedSplineCurve3( points ),
-					geometry = new THREE.Geometry(),
-// 					geometry2= new THREE.RingGeometry( 1, 1, points.length * n_sub, 1, 0, Math.PI*2 ),
-					geometry2= new THREE.CylinderGeometry( .5, 1, 0.001, points.length * n_sub, 1, true ),
+					geoCurve = new THREE.Geometry(),
+// 					geoSurface= new THREE.RingGeometry( 1, 1, points.length * n_sub, 1, 0, Math.PI*2 ),
+					geoSurface= new THREE.CylinderGeometry( .5, 1, 0.001, points.length * n_sub, 1, true ),
 					colors = [], colors2 = [],
 
 					maxNb =  points.length * n_sub,
 					coeffFullCircle = ((Math.PI*2) / (points.length * n_sub)),
-					position, index;
+					coeff=0, position=0, index=0;
 
 				for ( var i = 0; i < maxNb+1; i++ ) {
 
 					index = i / maxNb;
 					position = spline.getPoint( index );
+					coeff = coeffFullCircle * i;
 
 					position.y = Math.max( 0, position.y );
-					position.x = Math.cos( coeffFullCircle * i );
-					position.z = Math.sin( coeffFullCircle * i );
+					position.x = Math.cos( coeff ) * (1-(position.y*.1));
+					position.z = Math.sin( coeff ) * (1-(position.y*.1));
 
-					geometry.vertices[ i ] = new THREE.Vector3( position.x, position.y, position.z );
-
-
- 					geometry2.vertices[ maxNb - i ].x = Math.cos( coeffFullCircle * i + Math.PI/2 ) * (1-(position.y*.1));
-					geometry2.vertices[ maxNb - i ].z = Math.sin( coeffFullCircle * i + Math.PI/2 ) * (1-(position.y*.1));
- 					geometry2.vertices[ maxNb - i ].y = position.y;
+					geoCurve.vertices[ i ] = new THREE.Vector3( position.x, position.y, position.z );
 
 
-					colors[ i ] = new THREE.Color( 0xffffff );
-					colors[ i ].setHSL( 0.6, 1.0, Math.max( 0, - position.x / 100 ) + 0.5 );
+ 					geoSurface.vertices[ maxNb - i ].x = Math.cos( coeff + Math.PI/2 ) * (1-(position.y*.1));
+					geoSurface.vertices[ maxNb - i ].z = Math.sin( coeff + Math.PI/2 ) * (1-(position.y*.1));
+ 					geoSurface.vertices[ maxNb - i ].y = position.y;
+
+
+					colors[ i ] = new THREE.Color( 0x00beff );
+// 					colors[ i ].setHSL( 0.6, 1.0, Math.max( 0, - position.x / 100 ) + 0.5 );
 				}
 
-				geometry.colors = colors;
+				geoCurve.colors = colors;
 
-				material = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors } );
-				material2 = new THREE.MeshBasicMaterial( { color: 0x0078b8, wireframe: false, side: THREE.DoubleSide } );
-				material3 = new THREE.MeshPhongMaterial( { color: 0x2194ce, wireframe: false, side: THREE.DoubleSide, shininess: 50 } );
+				var material = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors } ),
+					material2 = new THREE.MeshBasicMaterial( { color: 0x0078b8, wireframe: false, side: THREE.DoubleSide } ),
+// 				material3 = new THREE.MeshPhongMaterial( {
+// 					color: 0x2194ce,
+// 					wireframe: false,
+// 					side: THREE.DoubleSide,
+// 					map: new THREE.Texture( canvas ),
+// 					transparent: true,
+// 					opacity: 0.5
+// 				} ),
+					material4 = new THREE.MeshPhongMaterial( {
+						color: 0x00beff, ambient: 0x00beff,
+						side: THREE.DoubleSide,
+						transparent: true, opacity: .5,
+						wrapAround: true
+					} )
+				;
+// 					material3.map.needsUpdate = true;
+
 
 				var scale = 100;
-				[
-					{
-						material: material,
-						scale: [scale, scale/5, scale],
-						position: [0,0,0],
-						rotation: [0,0,0],
-						geometry: geometry,
-						meshType: "Line"
-					},
-					{
-						material: material3,
-						scale: [scale, scale/5, scale],
-						position: [0,0,0],
-						rotation: [0,Math.PI/2,0],
-						geometry: geometry2,
-						meshType: "Mesh"
-					},
-// 					{
-// 						material: material3,
-// 						scale: [20,20,20],
-// 						position: [0,50,0],
-// 						rotation: [Math.PI/3,Math.PI/3,0],
-// 						geometry: new THREE.BoxGeometry(1,1,1),
-// 						meshType: "Mesh"
-// 					}
-				].forEach( function( p, i ) {
+
+				createNewMesh( {
+					material: material,
+					scale: [scale, scale/5, scale],
+					position: [0,0,0],
+					rotation: [0,0,0],
+					geometry: geoCurve,
+					meshType: "Line"
+				} );
+				createNewMesh( {
+					material: material4,
+					scale: [scale, scale/5, scale],
+					position: [0,0,0],
+					rotation: [0,Math.PI/2,0],
+					geometry: geoSurface,
+					meshType: "Mesh"
+				} );
+				createNewMesh( {
+					material: new THREE.MeshPhongMaterial({ color: 0xa3a3a3, shininess: 40 }),
+					scale: [32,32,32],
+					position: [0,50,0],
+					rotation: [Math.PI/3,Math.PI/3,0],
+					geometry: new THREE.BoxGeometry(1,1,1),
+					meshType: "Mesh"
+				} );
+
+				function createNewMesh( p ) {
 
 					var obj = new THREE[ p.meshType || "Mesh" ]( p.geometry,  p.material );
 
@@ -116,17 +171,33 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 					scene.add( obj );
 
-					volcanoes[ i ] = obj;
+					volcanoes.push( obj );
+				}
 
-				} );
 
-				var light = new THREE.PointLight( 0xffffff, 1, 0 );
-				light.position.set( -100, 200, 100 );
-				scene.add( light );
-				scene.add( new THREE.PointLightHelper( light, 5 ) );
 
-				var axis = new THREE.AxisHelper( 50 );
-				scene.add( axis );
+				/**********************
+				 *        Light       *
+				 **********************/
+
+				var lightP0 = new THREE.PointLight( 0xffffff, .5, 0 );
+				lightP0.position.set( -100, 200, 100 );
+				scene.add( lightP0 );
+				// scene.add( new THREE.PointLightHelper( lightP0, 5 ) );
+
+				var lightP1 = new THREE.PointLight( 0xffffff, 1, 0 );
+				lightP1.position.set( 0, 100, -200 );
+				scene.add( lightP1 );
+				// scene.add( new THREE.PointLightHelper( lightP1, 5 ) );
+
+				var lightA = new THREE.AmbientLight( 0x202020 );
+				scene.add( lightA );
+
+
+
+				// var axis = new THREE.AxisHelper( 50 );
+				// scene.add( axis );
+				
 
 				stats = new Stats();
 				stats.domElement.style.position = 'absolute';
@@ -171,6 +242,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 				camera.lookAt( new THREE.Vector3( scene.position.x, scene.position.y + 40, scene.position.z ) );
 
 // 				volcanoes.forEach( function( v ) { v.rotateY( .0125 ); } );
+				volcanoes[2].rotateY( .0125 );
 
 				stats.update();
 
