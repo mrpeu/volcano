@@ -41,16 +41,12 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 					],
 					n_sub = 10,
 					spline = new THREE.ClosedSplineCurve3( points ),
-					geometry = new THREE.Geometry(),
-					geometry2= new THREE.RingGeometry( 1, 1, points.length * n_sub, 1 ),
+					geometry2= new THREE.RingGeometry( 1, 1, points.length * n_sub, 1, 0, Math.PI*2 ),
 					colors = [], colors2 = [], colors3 = [],
 
 					maxNb =  points.length * n_sub,
 					coeffFullCircle = ((Math.PI*2) / (points.length * n_sub)),
 					position, index;
-
-// 					geometry2.vertices[0] = geometry2.vertices[geometry2.vertices.length-1];
-// 					geometry2.vertices[0] = geometry2.vertices[geometry2.vertices.length-1];
 
 				for ( var i = 0; i < maxNb; i++ ) {
 
@@ -58,24 +54,17 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 					position = spline.getPoint( index );
 
 					// place around
-					position.x = Math.cos( coeffFullCircle * i );
-					position.z = Math.sin( coeffFullCircle * i );
+// 					position.x = Math.cos( coeffFullCircle * i );
+					position.y = Math.max( 0, position.y );
+// 					position.z = Math.sin( coeffFullCircle * i );
 
-					geometry.vertices[ i ] = new THREE.Vector3( position.x, position.y, position.z );
+// 					geometry2.vertices[ i ].x = position.x;
+// 					geometry2.vertices[ i ].y = position.z;
 
-//  					geometry2.vertices[ maxNb - i ].x += position.y/2;
-//  					geometry2.vertices[ maxNb - i ].y += position.y/2;
  					geometry2.vertices[ maxNb - i ].z = position.y;
-
-					colors[ i ] = new THREE.Color( 0xffffff );
-					colors[ i ].setHSL( 0.6, 1.0, Math.max( 0, - position.x / 100 ) + 0.5 );
-
-					colors2[ i ] = new THREE.Color( 0xffffff );
-					colors2[ i ].setHSL( 0.99, 1.0, Math.max( 0, - position.y / 100 ) + 0.5 );
 
 				}
 
-				geometry.colors = colors;
 				geometry2.colors = colors2;
 
 				material = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors } );
@@ -84,14 +73,6 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 				var scale = 100, d = 0;
 				[
-// 					{
-// 						material: material,
-// 						scale: [scale, scale, scale],
-// 						position: [-d,0,0],
-// 						rotation: [0,0,0],
-// 						geometry: geometry,
-// 						meshType: "Line"
-// 					},
 					{
 						material: material3,
 						scale: [scale, scale, scale],
@@ -115,7 +96,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 				} );
 
 				var light = new THREE.PointLight( 0xffffff, 1, 0 );
-				light.position.set( -100, 100, 0 );
+				light.position.set( -150, 200, 00 );
 				scene.add( light );
 				scene.add( new THREE.PointLightHelper( light, 2 ) );
 
