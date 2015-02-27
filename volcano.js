@@ -33,12 +33,15 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 				container.appendChild( renderer.domElement );
 
 				var //values = [ 0, 10, 7, 3, 4, 2, 8, 1, 0 ],
-					points = [
-						new THREE.Vector3(   0,   0,   0 ), new THREE.Vector3(  .1, 1.0,   0 ), new THREE.Vector3(  .2,  .7,   0 ),
-						new THREE.Vector3(  .3,  .3,   0 ), new THREE.Vector3(  .4,  .4,   0 ), new THREE.Vector3(  .5,  .2,   0 ),
-						new THREE.Vector3(  .6,  .8,   0 ), new THREE.Vector3(  .7,  .1,   0 ), new THREE.Vector3(  .8,   0,   0 ),
-						new THREE.Vector3(  .9,  .8,   0 ), new THREE.Vector3( 1.0,   0,   0 )
-					],
+					points =
+						(function( nb ){ var a = []; for( var x = 0; x<nb; x++ ) { a[ x ] = new THREE.Vector3( Math.random(), Math.random(), 0 ); } return a; }
+						)(50),
+// 					[
+// 						new THREE.Vector3(   0,   0,   0 ), new THREE.Vector3(  .1, 1.0,   0 ), new THREE.Vector3(  .2,  .7,   0 ),
+// 						new THREE.Vector3(  .3,  .3,   0 ), new THREE.Vector3(  .4,  .4,   0 ), new THREE.Vector3(  .5,  .2,   0 ),
+// 						new THREE.Vector3(  .6,  .8,   0 ), new THREE.Vector3(  .7,  .1,   0 ), new THREE.Vector3(  .8,   0,   0 ),
+// 						new THREE.Vector3(  .9,  .8,   0 ), new THREE.Vector3( 1.0,   0,   0 )
+// 					],
 					n_sub = 10,
 					spline = new THREE.ClosedSplineCurve3( points ),
 					geometry = new THREE.Geometry(),
@@ -50,7 +53,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 					coeffFullCircle = ((Math.PI*2) / (points.length * n_sub)),
 					position, index;
 
-				for ( var i = 0; i < maxNb; i++ ) {
+				for ( var i = 0; i < maxNb+1; i++ ) {
 
 					index = i / maxNb;
 					position = spline.getPoint( index );
@@ -60,10 +63,10 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 					position.z = Math.sin( coeffFullCircle * i );
 
 					geometry.vertices[ i ] = new THREE.Vector3( position.x, position.y, position.z );
-					
 
- 					geometry2.vertices[ maxNb - i ].x = Math.cos( coeffFullCircle * i + Math.PI/2 ) * (1-(position.y*.5));
-					geometry2.vertices[ maxNb - i ].z = Math.sin( coeffFullCircle * i + Math.PI/2 ) * (1-(position.y*.5));
+
+ 					geometry2.vertices[ maxNb - i ].x = Math.cos( coeffFullCircle * i + Math.PI/2 ) * (1-(position.y*.1));
+					geometry2.vertices[ maxNb - i ].z = Math.sin( coeffFullCircle * i + Math.PI/2 ) * (1-(position.y*.1));
  					geometry2.vertices[ maxNb - i ].y = position.y;
 
 
@@ -81,7 +84,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 				[
 					{
 						material: material,
-						scale: [scale, scale, scale],
+						scale: [scale, scale/5, scale],
 						position: [0,0,0],
 						rotation: [0,0,0],
 						geometry: geometry,
@@ -89,7 +92,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 					},
 					{
 						material: material3,
-						scale: [scale, scale, scale],
+						scale: [scale, scale/5, scale],
 						position: [0,0,0],
 						rotation: [0,Math.PI/2,0],
 						geometry: geometry2,
