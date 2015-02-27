@@ -23,7 +23,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 				document.body.appendChild( container );
 
 				camera = new THREE.PerspectiveCamera( 33, window.innerWidth / window.innerHeight, 1, 10000 );
-				camera.position.set( 0, 50, 250 );
+				camera.position.set( 0, 100, 250 );
 
 				scene = new THREE.Scene();
 
@@ -41,8 +41,10 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 					],
 					n_sub = 10,
 					spline = new THREE.ClosedSplineCurve3( points ),
-					geometry2= new THREE.RingGeometry( 1, 1, points.length * n_sub, 1, 0, Math.PI*2 ),
-					colors = [], colors2 = [], colors3 = [],
+					geometry = new THREE.Geometry(),
+// 					geometry2= new THREE.RingGeometry( 1, 1, points.length * n_sub, 1, 0, Math.PI*2 ),
+					geometry2= new THREE.CylinderGeometry( .5, 1, 0.001, points.length * n_sub, 1, true ),
+					colors = [], colors2 = [],
 
 					maxNb =  points.length * n_sub,
 					coeffFullCircle = ((Math.PI*2) / (points.length * n_sub)),
@@ -53,34 +55,54 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 					index = i / maxNb;
 					position = spline.getPoint( index );
 
-					// place around
-// 					position.x = Math.cos( coeffFullCircle * i );
 					position.y = Math.max( 0, position.y );
-// 					position.z = Math.sin( coeffFullCircle * i );
+					position.x = Math.cos( coeffFullCircle * i );
+					position.z = Math.sin( coeffFullCircle * i );
 
-// 					geometry2.vertices[ i ].x = position.x;
-// 					geometry2.vertices[ i ].y = position.z;
+					geometry.vertices[ i ] = new THREE.Vector3( position.x, position.y, position.z );
+					
 
- 					geometry2.vertices[ maxNb - i ].z = position.y;
+ 					geometry2.vertices[ maxNb - i ].x = Math.cos( coeffFullCircle * i + Math.PI/2 ) * (1-(position.y*.5));
+					geometry2.vertices[ maxNb - i ].z = Math.sin( coeffFullCircle * i + Math.PI/2 ) * (1-(position.y*.5));
+ 					geometry2.vertices[ maxNb - i ].y = position.y;
 
+
+					colors[ i ] = new THREE.Color( 0xffffff );
+					colors[ i ].setHSL( 0.6, 1.0, Math.max( 0, - position.x / 100 ) + 0.5 );
 				}
 
-				geometry2.colors = colors2;
+				geometry.colors = colors;
 
 				material = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors } );
 				material2 = new THREE.MeshBasicMaterial( { color: 0x0078b8, wireframe: false, side: THREE.DoubleSide } );
 				material3 = new THREE.MeshPhongMaterial( { color: 0x2194ce, wireframe: false, side: THREE.DoubleSide, shininess: 50 } );
 
-				var scale = 100, d = 0;
+				var scale = 100;
 				[
+					{
+						material: material,
+						scale: [scale, scale, scale],
+						position: [0,0,0],
+						rotation: [0,0,0],
+						geometry: geometry,
+						meshType: "Line"
+					},
 					{
 						material: material3,
 						scale: [scale, scale, scale],
-						position: [-d,0,0],
-						rotation: [-Math.PI/2,0,0],
+						position: [0,0,0],
+						rotation: [0,Math.PI/2,0],
 						geometry: geometry2,
 						meshType: "Mesh"
-					}
+					},
+// 					{
+// 						material: material3,
+// 						scale: [20,20,20],
+// 						position: [0,50,0],
+// 						rotation: [Math.PI/3,Math.PI/3,0],
+// 						geometry: new THREE.BoxGeometry(1,1,1),
+// 						meshType: "Mesh"
+// 					}
 				].forEach( function( p, i ) {
 
 					var obj = new THREE[ p.meshType || "Mesh" ]( p.geometry,  p.material );
@@ -96,10 +118,12 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 				} );
 
 				var light = new THREE.PointLight( 0xffffff, 1, 0 );
-				light.position.set( -150, 200, 00 );
+				light.position.set( -100, 200, 100 );
 				scene.add( light );
-				scene.add( new THREE.PointLightHelper( light, 2 ) );
+				scene.add( new THREE.PointLightHelper( light, 5 ) );
 
+				var axis = new THREE.AxisHelper( 50 );
+				scene.add( axis );
 
 				stats = new Stats();
 				stats.domElement.style.position = 'absolute';
@@ -116,6 +140,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 				window.addEventListener( 'resize', onWindowResize, false );
 
 			}
+
 
 
 
@@ -138,11 +163,11 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 			function render() {
 
 				camera.position.x += ( mouseX - camera.position.x ) * .5;
-				camera.position.y += ( - mouseY + 100 - camera.position.y ) * .9;
+				camera.position.y += ( - mouseY + 50 - camera.position.y ) * .9;
 
 				camera.lookAt( new THREE.Vector3( scene.position.x, scene.position.y + 40, scene.position.z ) );
 
-				volcanoes[0].rotateZ( .0125 );
+// 				volcanoes.forEach( function( v ) { v.rotateY( .0125 ); } );
 
 				stats.update();
 
@@ -153,6 +178,10 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 
 
+
+			/***********************
+			 *        Event        *
+			 **********************/
 
 
 			function onWindowResize() {
