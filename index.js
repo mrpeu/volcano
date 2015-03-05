@@ -9,7 +9,9 @@ var mouseX = 0, mouseY = 0,
 	windowHalfX = window.innerWidth / 2,
 	windowHalfY = window.innerHeight / 2,
 
-	camera, scene, renderer,
+	camera,
+	cameraRTT, rtTexture,
+	scene, renderer,
 
 	volcanoes = [];
 
@@ -23,8 +25,10 @@ function init() {
 	container = document.createElement( 'div' );
 	document.body.appendChild( container );
 
-	camera = new THREE.PerspectiveCamera( 33, window.innerWidth / window.innerHeight, 1, 10000 );
-	camera.position.set( 0, 100, 250 );
+	camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
+	camera.position.z = 150;
+	cameraRTT = new THREE.PerspectiveCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -10000, 10000 );
+	cameraRTT.position.z = 150;
 
 	scene = new THREE.Scene();
 	scene.fog = new THREE.FogExp2( 0x000000, 0.0009 );
@@ -68,13 +72,37 @@ function init() {
 // 				context.putImageData( texture, 0, 0 );
 
 
+	/**********************
+	 *        Plane       *
+	 **********************/
+
+	rtTexture = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } );
+
+	 var plane = new THREE.Mesh(
+	 	new THREE.PlaneBufferGeometry( 1000, 1000 ),
+	 	new THREE.MeshBasicMaterial({
+// 	 		color: 0x555555,
+	 		map: rtTexture
+	 	})
+	);
+	plane.rotateX( -Math.PI/2 );
+	scene.add( plane );
+
+
+
+
+
+	/**********************
+	 *        Volcano       *
+	 **********************/
+
 	var dummyValues = function( nb ){ var a = []; for( var x = 0; x<nb; x++ ) { a[ x ] = new THREE.Vector3( Math.random(), Math.random(), 0 ); } return a; };
 	var blue = 0x00beff,
 		red = 0xff4965;
 	var v0 = new Volcano.Container();
-	[   { values: dummyValues(25), color: red, radius: .99, subd: 5 },
-		{ values: dummyValues(25), color: red, radius: .95, subd: 5 },
-		{ values: dummyValues(25), color: red, radius: .90, subd: 5 },
+	[   { values: dummyValues(25), color: red, radius: .99, subd: 10 },
+		{ values: dummyValues(25), color: red, radius: .95, subd: 10 },
+		{ values: dummyValues(25), color: red, radius: .90, subd: 10 },
 		{ values: dummyValues(10), color: blue, radius: .4, subd: 5 },
 		{ values: dummyValues(10), color: blue, radius: .3, subd: 5 },
 		{ values: dummyValues(10), color: blue, radius: .2, subd: 5 }
@@ -87,6 +115,7 @@ function init() {
 	scene.add( volcanoes[0] );
 
 
+
 	/**********************
 	 *        Light       *
 	 **********************/
@@ -94,15 +123,17 @@ function init() {
 	var lightP0 = new THREE.PointLight( 0xffffff, .5, 0 );
 	lightP0.position.set( -100, 200, 100 );
 	scene.add( lightP0 );
-	// scene.add( new THREE.PointLightHelper( lightP0, 5 ) );
 
 	var lightP1 = new THREE.PointLight( 0xffffff, 1, 0 );
 	lightP1.position.set( 0, 100, -200 );
 	scene.add( lightP1 );
-	// scene.add( new THREE.PointLightHelper( lightP1, 5 ) );
 
 	var lightA = new THREE.AmbientLight( 0x202020 );
 	scene.add( lightA );
+
+// 	scene.add( new THREE.PointLightHelper( lightP0, 20 ) );
+// 	scene.add( new THREE.PointLightHelper( lightP1, 20 ) );
+// 	scene.add( new THREE.PointLightHelper( lightA, 20 ) );
 
 
 
@@ -151,17 +182,15 @@ function update() {
 function render() {
 
 	camera.position.x += ( mouseX - camera.position.x ) * .5;
-	camera.position.y += ( - mouseY + 50 - camera.position.y ) * .9 + 90;
-
-	camera.lookAt( new THREE.Vector3( scene.position.x, scene.position.y + 40, scene.position.z ) );
-
-	// 				volcanoes.forEach( function( v ) { v.rotateY( .0125 ); } );
-	volcanoes[0].rotateY( .00125 );
+	camera.position.y += ( - mouseY + 0 - camera.position.y ) * .9 + 90;
+	camera.lookAt( new THREE.Vector3( scene.position.x, scene.position.y + 0, scene.position.z ) );
+	
+	cameraRTT.position.set( camera.position.x, -camera.position.y, camera.position.z );
 
 	stats.update();
 
 	renderer.render( scene, camera );
-
+	renderer.render( scene, cameraRTT, rtTexture, true );
 }
 
 

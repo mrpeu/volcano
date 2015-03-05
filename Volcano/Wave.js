@@ -39,7 +39,7 @@ Volcano.Wave = function(conf) {
     function initMaterials(color) {
         
         scope.matPoints = new THREE.PointCloudMaterial({
-           size: 4,
+           size: 2,
            vertexColors: THREE.VertexColors
         });
         
