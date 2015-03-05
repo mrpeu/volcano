@@ -66,9 +66,25 @@ function init() {
 // 				context.putImageData( texture, 0, 0 );
 
 
-	volcanoes.push( new Volcano.Container() );
+	var dummyValues = function( nb ){ var a = []; for( var x = 0; x<nb; x++ ) { a[ x ] = new THREE.Vector3( Math.random(), Math.random(), 0 ); } return a; };
+	var blue = 0x00beff,
+		red = 0xff4965;
+	var v0 = new Volcano.Container( {
+		waves: [
+			[ dummyValues(50), red ],
+			[ dummyValues(50), red ],
+			[ dummyValues(50), red ],
+			null, null, null, null, null, null, null,
+			[ dummyValues(15), blue ],
+			[ dummyValues(15), blue ],
+			[ dummyValues(15), blue ],
+			null, null, null, null, null
+		]
+	} );
 
-	volcanoes[0].scale.set( 100, 20, 100 );
+	v0.scale.set( 100, 18, 100 );
+
+	volcanoes.push( v0 );
 
 	scene.add( volcanoes[0] );
 
@@ -134,7 +150,7 @@ function animate() {
 function render() {
 
 	camera.position.x += ( mouseX - camera.position.x ) * .5;
-	camera.position.y += ( - mouseY + 50 - camera.position.y ) * .9;
+	camera.position.y += ( - mouseY + 50 - camera.position.y ) * .9 + 90;
 
 	camera.lookAt( new THREE.Vector3( scene.position.x, scene.position.y + 40, scene.position.z ) );
 

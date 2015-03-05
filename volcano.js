@@ -74,8 +74,7 @@ Volcano.Wave = function( opt ){
     function initMaterials( color ){
 
         scope.matCurve = new THREE.LineBasicMaterial( {
-            color: 0xffffff,
-            opacity: 1,
+            opacity: .7,
             linewidth: 2,
             vertexColors: THREE.VertexColors
         } );
@@ -83,8 +82,9 @@ Volcano.Wave = function( opt ){
         scope.matSurface = new THREE.MeshPhongMaterial( {
             color: color, ambient: color,
             side: THREE.DoubleSide,
-            transparent: true, opacity: .5,
-            wrapAround: true
+            transparent: true, opacity: .6,
+            wrapAround: true,
+            shininess: 10, metal: true
         } );
     }
 
@@ -107,21 +107,36 @@ Volcano.Container = function( opt ) {
     this.type = 'Volcano';
 	var scope = this;
 
-    init();
+	opt = opt || {};
+	this.waves = opt.waves || [];
 
+
+    this.createWave = function( values, color ) {
+
+        var v = new Volcano.Wave({ values: values, nbSubdivisions: 10, color: color });
+
+        scope.add( v );
+
+        return v;
+    };
 
     function init() {
-        
-        dummyValues = (
-            function( nb ){ var a = []; for( var x = 0; x<nb; x++ ) { a[ x ] = new THREE.Vector3( Math.random(), Math.random(), 0 ); } return a; }
-			)(50);
-        createWave( dummyValues, 0x00beff );
+        var o = {}, len = scope.waves.length;
+        for( var i = len-1; i >= 0; i-- ) {
+            o = scope.waves[i];
+            
+            if( o !== undefined && o !== null && o.length > 0 ){
+
+                var w = scope.createWave( o[0], o[1] );
+                var s = 1 - 1/len * i;
+                w.scale.set( s, 1, s );
+
+            }
+
+        };
     }
 
-    function createWave( values, color ) {
-
-        scope.add( new Volcano.Wave({ values: values, nbSubdivisions: 10, color: color }) );
-    }
+    init();
 
 }
 
