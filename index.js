@@ -1,8 +1,9 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-// 			var t = Date.now();
-// 			var fps = 1000/70; // max fps
-			
+var time = 0,
+	time_now = 0,
+	time_delta = 0;
+
 var mouseX = 0, mouseY = 0,
 
 	windowHalfX = window.innerWidth / 2,
@@ -13,7 +14,7 @@ var mouseX = 0, mouseY = 0,
 	volcanoes = [];
 
 init();
-animate();
+update();
 
 function init() {
 
@@ -26,6 +27,7 @@ function init() {
 	camera.position.set( 0, 100, 250 );
 
 	scene = new THREE.Scene();
+	scene.fog = new THREE.FogExp2( 0x000000, 0.0009 );
 
 	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
@@ -69,18 +71,14 @@ function init() {
 	var dummyValues = function( nb ){ var a = []; for( var x = 0; x<nb; x++ ) { a[ x ] = new THREE.Vector3( Math.random(), Math.random(), 0 ); } return a; };
 	var blue = 0x00beff,
 		red = 0xff4965;
-	var v0 = new Volcano.Container( {
-		waves: [
-			[ dummyValues(50), red ],
-			[ dummyValues(50), red ],
-			[ dummyValues(50), red ],
-			null, null, null, null, null, null, null,
-			[ dummyValues(15), blue ],
-			[ dummyValues(15), blue ],
-			[ dummyValues(15), blue ],
-			null, null, null, null, null
-		]
-	} );
+	var v0 = new Volcano.Container();
+	[   { values: dummyValues(25), color: red, radius: .99, subd: 5 },
+		{ values: dummyValues(25), color: red, radius: .95, subd: 5 },
+		{ values: dummyValues(25), color: red, radius: .90, subd: 5 },
+		{ values: dummyValues(10), color: blue, radius: .4, subd: 5 },
+		{ values: dummyValues(10), color: blue, radius: .3, subd: 5 },
+		{ values: dummyValues(10), color: blue, radius: .2, subd: 5 }
+	].forEach( v0.createWave );
 
 	v0.scale.set( 100, 18, 100 );
 
@@ -136,15 +134,18 @@ function init() {
 **********************/
 
 
-function animate() {
+function update() {
 
-	// 				var d = Date.now();
-	// 				if( d-t > fps ) {
-	// 					t = d;
-		render();
-	// 				}
+	var time_now = Date.now(),
+		time_delta = time_now - time;
 
-	requestAnimationFrame( animate );
+	volcanoes.forEach( function( v ){ v.update( time_delta ) } );
+
+	render();
+
+	time = time_now;
+
+	requestAnimationFrame( update );
 }
 
 function render() {
