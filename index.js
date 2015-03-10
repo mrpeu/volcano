@@ -26,9 +26,12 @@ function init() {
 	document.body.appendChild( container );
 
 	camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
-	camera.position.z = 200;
-	cameraRTT = new THREE.PerspectiveCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -10000, 10000 );
-	cameraRTT.position.z = 200;
+	camera.position.z = 300;
+
+	cameraRTT = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -1000, 1000 );
+	cameraRTT.rotation.set( 0,0,0 );
+	cameraRTT.position = camera.position;
+ 	cameraRTT.lookAt(new THREE.Vector3( 0,-1,0 ));
 
 	scene = new THREE.Scene();
 	scene.fog = new THREE.FogExp2( 0x000000, 0.0009 );
@@ -76,18 +79,17 @@ function init() {
 	 *        Plane       *
 	 **********************/
 
-	rtTexture = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } );
+	rtTexture = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
 
 	 var plane = new THREE.Mesh(
 	 	new THREE.PlaneBufferGeometry( 1000, 1000 ),
 	 	new THREE.MeshBasicMaterial({
 	 		color: 0xaaaaaa,
-// 	 		map: rtTexture
+	 		map: rtTexture
 	 	})
 	);
 	plane.rotateX( -Math.PI/2 );
 	scene.add( plane );
-
 
 
 
@@ -182,14 +184,15 @@ function update() {
 function render() {
 
 	camera.position.x += ( mouseX - camera.position.x ) * .5;
-	camera.position.y += ( - mouseY + 0 - camera.position.y ) * .9 + 90;
-	camera.lookAt( new THREE.Vector3( scene.position.x, scene.position.y + 0, scene.position.z ) );
+	camera.position.y += ( - mouseY + 0 - camera.position.y ) * .9 + 200;
+	camera.lookAt( new THREE.Vector3( scene.position.x, scene.position.y , scene.position.z ) );
 	
-	cameraRTT.position = camera.position.clone(); //.set( camera.position.x, -camera.position.y, camera.position.z );
+ 	cameraRTT.position.set( camera.position.x, -camera.position.y, camera.position.z );
+	cameraRTT.lookAt(new THREE.Vector3());
 
 	stats.update();
 
-// 	renderer.render( scene, cameraRTT, rtTexture, true );
+	renderer.render( scene, cameraRTT, rtTexture, true );
 	renderer.render( scene, camera );
 }
 
