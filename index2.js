@@ -14,7 +14,7 @@ windowHalfY = window.innerHeight / 2,
 camera, 
 scene, renderer, 
 
-plane, plane_wireframe
+useBufferGeometry = true, plane, plane_wireframe
 ;
 
 init();
@@ -44,8 +44,9 @@ function init() {
 	 *     Plane Ref      *
 	 **********************/
     
+
     var planeRef = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(500, 500), 
+    new THREE[useBufferGeometry?"PlaneBufferGeometry":"PlaneGeometry"](500, 500), 
     new THREE.MeshBasicMaterial({
         color: 0xeeeeee,
     })
@@ -59,7 +60,7 @@ function init() {
 	 **********************/
     
     plane = new THREE.Mesh(
-    new THREE.PlaneGeometry(500, 500, 10, 10), 
+    new THREE[useBufferGeometry?"PlaneBufferGeometry":"PlaneGeometry"](500, 500, 10, 100), 
     new THREE.MeshBasicMaterial({
         color: 0x77eeff
     })
@@ -118,23 +119,41 @@ function init() {
     
     window.addEventListener('resize', onWindowResize, false);
 
-    var mouseLock = getMouseLock();
-    if( mouseLock ) {
-        updateCameraFromMouse( mouseX = mouseLock.x, mouseY = mouseLock.y );
-    }
+    setTimeout( function(){
+
+        if( cameraLock ) {
+            mouseX = getMouseLock().x;
+            mouseY = getMouseLock().y;
+            updateCameraFromMouse( mouseX, mouseY );
+        }
+    }, 500);
 }
 
 
 function moveIt(mesh, time) {
 
-    var coords = mesh.geometry.vertices;
+    var getY = function( i ) {
+        return Math.cos( (i/(coords.length/10)) + time*.002 ) *20;
+    };
 
-    var y = 0;
-    for (var i = 0; i < coords.length; i ++) {
-        coords[i].setZ( Math.cos( ~~(i/Math.sqrt(coords.length)) + time*.002 ) *20 );
+    if( useBufferGeometry ) {
+
+        // PlaneBufferGeomtry
+        var coords = mesh.geometry.attributes.position.array;
+        for ( var i = 2; i < mesh.geometry.attributes.position.length; i+=3 ) {
+            coords[i] = getY( i );
+        }
+        mesh.geometry.attributes.position.needsUpdate = true;
+    } else {
+
+        // PlaneGeometry
+        var coords = mesh.geometry.vertices,
+            y = 0;
+        for (var i = 0; i < coords.length; i ++) {
+            coords[i].setZ( getY( i ) );
+        }
+        mesh.geometry.verticesNeedUpdate = true;
     }
-
-    mesh.geometry.verticesNeedUpdate = true;
 }
 
 
@@ -195,8 +214,8 @@ function updateCameraFromMouse( x, y ) {
 
 function getMouseLock() {
     return ( localStorage.mouseX || localStorage.mouseY ) ? {
-        x: localStorage.mouseX+0,
-        y: localStorage.mouseY+0
+        x: localStorage.mouseX*1,
+        y: localStorage.mouseY*1
     } : null;
 }
 
@@ -206,18 +225,6 @@ function setMouseLock( x, y ) {
 }
 
 //
-
-function onWindowResize() {
-    
-    windowHalfX = window.innerWidth / 2;
-    windowHalfY = window.innerHeight / 2;
-    
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-}
 
 function onDocumentMouseMove(event) {
     mouseX = event.clientX - windowHalfX;
@@ -231,6 +238,18 @@ function onMouseDown(event) {
 function onMouseUp(event) {
     cameraLock = true;
     setMouseLock( mouseX, mouseY );
+}
+
+function onWindowResize() {
+    
+    windowHalfX = window.innerWidth / 2;
+    windowHalfY = window.innerHeight / 2;
+    
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
 }
 
 function onDocumentTouchStart(event) {
