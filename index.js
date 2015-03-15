@@ -186,7 +186,7 @@ function render() {
 	camera.position.x += ( mouseX - camera.position.x ) * .5;
 	camera.position.y += ( - mouseY + 0 - camera.position.y ) * .9 + 200;
 	camera.lookAt( new THREE.Vector3( scene.position.x, scene.position.y , scene.position.z ) );
-	
+
  	cameraRTT.position.set( camera.position.x, -camera.position.y, camera.position.z );
 	cameraRTT.lookAt(new THREE.Vector3());
 
