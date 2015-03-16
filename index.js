@@ -10,7 +10,6 @@ var mouseX = 0, mouseY = 0,
 	windowHalfY = window.innerHeight / 2,
 
 	camera,
-	cameraRTT, rtTexture,
 	scene, renderer,
 
 	volcanoes = [];
@@ -26,12 +25,7 @@ function init() {
 	document.body.appendChild( container );
 
 	camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
-	camera.position.z = 300;
-
-	cameraRTT = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -1000, 1000 );
-	cameraRTT.rotation.set( 0,0,0 );
-	cameraRTT.position = camera.position;
- 	cameraRTT.lookAt(new THREE.Vector3( 0,-1,0 ));
+	camera.position.z = 200;
 
 	scene = new THREE.Scene();
 	scene.fog = new THREE.FogExp2( 0x000000, 0.0009 );
@@ -41,51 +35,14 @@ function init() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container.appendChild( renderer.domElement );
 
-
-
-
-				/**********************
-				 *        Texture     *
-				 **********************/
-
-// 				var size = 256;
-// 				var canvas = document.createElement("canvas");
-// 				canvas.width = size;
-// 				canvas.height = size;
-// 				canvas.style.position = 'absolute';
-// 				canvas.style.top = '0px';
-// 				canvas.style.left = '128px';
-// 				container.appendChild( canvas );
-
-// 				var context = canvas.getContext("2d");
-
-// 				var texture = new TG.Texture( size, size )
-// 					.add( new TG.SinY().frequency( 0.002 ).tint( 0, .42, .61 ) )
-// 					.add( new TG.Noise().tint( 0, 0.5, 0.5 ) )
-// 					.add( new TG.SinY().frequency( 0.0025 ).tint( .2, .62, .81 ) )
-// 					.toImageData(context);
-
-// // 					.mul( new TG.SinY().frequency( 0.004 ) )
-// // 					.mul( new TG.SinY().offset( 32 ).frequency( 0.02 ) )
-// // 					.div( new TG.SinX().frequency( 0.02 ).tint( 8, 5, 4 ) )
-// // 					.add( new TG.Noise().tint( 0.1, 0, 0 ) )
-// // 					.add( new TG.Noise().tint( 0, 0.1, 0 ) )
-// // 					.add( new TG.Noise().tint( 0, 0, 0.1 ) )
-
-// 				context.putImageData( texture, 0, 0 );
-
-
 	/**********************
 	 *        Plane       *
 	 **********************/
 
-	rtTexture = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-
 	 var plane = new THREE.Mesh(
 	 	new THREE.PlaneBufferGeometry( 1000, 1000 ),
 	 	new THREE.MeshBasicMaterial({
-	 		color: 0xaaaaaa,
-	 		map: rtTexture
+	 		color: 0xaaaaaa
 	 	})
 	);
 	plane.rotateX( -Math.PI/2 );
@@ -187,12 +144,8 @@ function render() {
 	camera.position.y += ( - mouseY + 0 - camera.position.y ) * .9 + 200;
 	camera.lookAt( new THREE.Vector3( scene.position.x, scene.position.y , scene.position.z ) );
 
- 	cameraRTT.position.set( camera.position.x, -camera.position.y, camera.position.z );
-	cameraRTT.lookAt(new THREE.Vector3());
-
 	stats.update();
 
-	renderer.render( scene, cameraRTT, rtTexture, true );
 	renderer.render( scene, camera );
 }
 
