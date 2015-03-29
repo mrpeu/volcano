@@ -65,7 +65,7 @@ Volcano.Wave = function(conf) {
 
         var geoPoints = new THREE.Geometry(),
             geoCurve = new THREE.Geometry(),
-            geoSurface = new THREE.PlaneBufferGeometry(.5, 1, 0.001, scope.values.length * scope.subd, 1, true)
+            geoSurface = new THREE.PlaneBufferGeometry(.5, 1, 1, scope.values.length * scope.subd)
         ;
 
         updateGeometries( scope.values, scope.angle, geoPoints, geoCurve, geoSurface );
@@ -75,11 +75,23 @@ Volcano.Wave = function(conf) {
         scope.curve = new THREE.Line(geoCurve, scope.matCurve);
 
         scope.surface = new THREE.Mesh(geoSurface, scope.matSurface);
-        scope.surface.rotation.set(0, Math.PI / 2, 0);
+        scope.surface.translateY( 0.5 );
+        scope.surface.rotation.set(0, 0, Math.PI / 2);
+
+        var surface2 = new THREE.Mesh( geoSurface, new THREE.MeshBasicMaterial({color:scope.color, wireframe:true, vertexColors: THREE.VertexColors}));
+        var colors = [];
+        for(var i=0; i<geoSurface.attributes.position.length; i++){
+            colors[ i ] = new THREE.Color( 0xffffff );
+            colors[ i ].setHSL( 0.6, 1.0, Math.max( 0, ( 200 - i ) / 400 ) * 0.5 + 0.5 );
+        }
+        geoSurface.addAttribute( 'color', new THREE.BufferAttribute( new Float32Array( colors ), 3 ) );
+        surface2.translateY( 0.5 );
+        surface2.rotation.set(0, 0, Math.PI / 2);
+        scope.add( surface2 );
 
         scope.add(scope.points);
         scope.add(scope.curve);
-        scope.add(scope.surface);
+//         scope.add(scope.surface);
     }
 
     function updateGeometries( values, angle, geoPoints, geoCurve, geoSurface ) {
@@ -103,21 +115,21 @@ Volcano.Wave = function(conf) {
 
 
 //             // points
-//             if ( (i % scope.subd) == 0) {
-//                 geoPoints.vertices[~~(i / scope.subd)] = new THREE.Vector3(position.x, position.y +.25, position.z);
-//                 geoPoints.colors[~~(i / scope.subd)] = new THREE.Color(scope.color);
-//             }
+            if ( (i % scope.subd) == 0) {
+                geoPoints.vertices[~~(i / scope.subd)] = new THREE.Vector3(position.x, position.y +.25, position.z);
+                geoPoints.colors[~~(i / scope.subd)] = new THREE.Color(scope.color);
+            }
 
 
 //             // curve
-//             geoCurve.vertices[i] = new THREE.Vector3(position.x, position.y, position.z);
-//             geoCurve.colors[i] = new THREE.Color(scope.color);
+            geoCurve.vertices[i] = new THREE.Vector3(position.x, position.y, position.z);
+            geoCurve.colors[i] = new THREE.Color(scope.color);
 
 
             // surface
-            geoSurfacePosition[maxNb - i].x = position.x; //Math.cos(coeff + Math.PI / 2) * (1 - (position.y * .1));
-            geoSurfacePosition[maxNb - i].y = position.y;
-            geoSurfacePosition[maxNb - i].z = position.z; //Math.sin(coeff + Math.PI / 2) * (1 - (position.y * .1));
+//             geoSurfacePosition[6*i].x = position.x; //Math.cos(coeff + Math.PI / 2) * (1 - (position.y * .1));
+//             geoSurfacePosition[6*i+1].y = position.y;
+//             geoSurfacePosition[6*i+2].z = position.z; //Math.sin(coeff + Math.PI / 2) * (1 - (position.y * .1));
         }
 
     }

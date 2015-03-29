@@ -10,7 +10,7 @@ var mouseX = 0, mouseY = 0,
 	windowHalfY = window.innerHeight / 2,
 
 	camera,
-	scene, renderer,
+	scene, renderer, orbitControls,
 
 	volcanoes = [];
 
@@ -34,6 +34,8 @@ function init() {
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container.appendChild( renderer.domElement );
+
+	orbitControls = new THREE.OrbitControls( camera, renderer.domElement );
 
 	/**********************
 	 *        Plane       *
@@ -60,10 +62,10 @@ function init() {
 		red = 0xff4965;
 	var v0 = new Volcano.Container();
 	[   { values: dummyValues(25), color: red, radius: .99, subd: 10 },
-		{ values: dummyValues(25), color: red, radius: .95, subd: 10 },
-		{ values: dummyValues(25), color: red, radius: .90, subd: 10 },
-		{ values: dummyValues(10), color: blue, radius: .4, subd: 5 },
-		{ values: dummyValues(10), color: blue, radius: .3, subd: 5 },
+// 		{ values: dummyValues(25), color: red, radius: .95, subd: 10 },
+// 		{ values: dummyValues(25), color: red, radius: .90, subd: 10 },
+// 		{ values: dummyValues(10), color: blue, radius: .4, subd: 5 },
+// 		{ values: dummyValues(10), color: blue, radius: .3, subd: 5 },
 		{ values: dummyValues(10), color: blue, radius: .2, subd: 5 }
 	].forEach( v0.createWave );
 
@@ -131,6 +133,8 @@ function update() {
 
 	volcanoes.forEach( function( v ){ v.update( time_delta ) } );
 
+	orbitControls.update();
+
 	render();
 
 	time = time_now;
@@ -139,10 +143,6 @@ function update() {
 }
 
 function render() {
-
-	camera.position.x += ( mouseX - camera.position.x ) * .5;
-	camera.position.y += ( - mouseY + 0 - camera.position.y ) * .9 + 200;
-	camera.lookAt( new THREE.Vector3( scene.position.x, scene.position.y , scene.position.z ) );
 
 	stats.update();
 
