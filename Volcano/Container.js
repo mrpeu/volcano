@@ -30,7 +30,7 @@ Volcano.Container = function( conf ) {
 
         scope.waves.forEach( function( w, i ){
             w.update( d );
-           w.scale.setY( Math.abs( Math.cos( Date.now()*(.0005 * w.scale.x ) + i ) ) )
+//            w.scale.setY( Math.abs( Math.cos( Date.now()*(.0005 * w.scale.x ) + i ) ) )
         });
 
     };

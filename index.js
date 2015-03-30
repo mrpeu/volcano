@@ -1,7 +1,6 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-var time = 0,
-	time_now = 0,
+var time_last = 0,
 	time_delta = 0;
 
 var mouseX = 0, mouseY = 0,
@@ -15,7 +14,9 @@ var mouseX = 0, mouseY = 0,
 	volcanoes = [];
 
 init();
-update();
+update(Date.now());
+
+orbitControls.position0.set(0,-1,20); orbitControls.target0.set(0,7.5,0); orbitControls.reset();
 
 function init() {
 
@@ -48,7 +49,7 @@ function init() {
 	 	})
 	);
 	plane.rotateX( -Math.PI/2 );
-	scene.add( plane );
+// 	scene.add( plane );
 
 
 
@@ -66,10 +67,10 @@ function init() {
 // 		{ values: dummyValues(25), color: red, radius: .90, subd: 10 },
 // 		{ values: dummyValues(10), color: blue, radius: .4, subd: 5 },
 // 		{ values: dummyValues(10), color: blue, radius: .3, subd: 5 },
-		{ values: dummyValues(10), color: blue, radius: .2, subd: 5 }
+// 		{ values: dummyValues(10), color: blue, radius: .2, subd: 5 }
 	].forEach( v0.createWave );
 
-	v0.scale.set( 100, 18, 100 );
+	v0.scale.set( 100, 20, 100 );
 
 	volcanoes.push( v0 );
 
@@ -126,25 +127,28 @@ function init() {
 **********************/
 
 
-function update() {
+function update( time ) {
 
-	var time_now = Date.now(),
-		time_delta = time_now - time;
+	var time_delta = time - time_last;
 
 	volcanoes.forEach( function( v ){ v.update( time_delta ) } );
 
 	orbitControls.update();
 
-	render();
+	render( new Date(time), time_delta );
 
-	time = time_now;
+	time_last = time;
 
 	requestAnimationFrame( update );
 }
 
-function render() {
+function render( time, delta ) {
 
-	stats.update();
+    stats.update({
+        t:		time.getMinutes()+':'+time.getSeconds()+':'+time.getMilliseconds(),
+        Δ:		time_delta,
+        m:	~~mouseX+' : '+~~mouseY
+    });
 
 	renderer.render( scene, camera );
 }

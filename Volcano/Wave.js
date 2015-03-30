@@ -13,7 +13,7 @@ Volcano.Wave = function(conf) {
     this.conf = conf || {};
     this.color = this.conf.color = conf.color;
     this.values = this.conf.values = conf.values;
-    this.subd = this.conf.subd = conf.subd || 10;
+    this.subd = this.conf.subd = conf.subd || 2;
     this.conf.radius = conf.radius || 1;
     this.angle = this.conf.angle || Math.PI;
 
@@ -24,12 +24,14 @@ Volcano.Wave = function(conf) {
     this.matCurve = null;
 
     this.surface = null;
+    this.surface2 = null;
     this.matSurface = null;
 
     init();
 
     this.update = function(d) {
 
+        updateGeometries( scope.values, scope.angle, scope.points.geometry, scope.curve.geometry, scope.surface.geometry );
     }
 
     function init() {
@@ -78,28 +80,30 @@ Volcano.Wave = function(conf) {
         scope.surface.translateY( 0.5 );
         scope.surface.rotation.set(0, 0, Math.PI / 2);
 
-        var surface2 = new THREE.Mesh( geoSurface, new THREE.MeshBasicMaterial({color:scope.color, wireframe:true, vertexColors: THREE.VertexColors}));
         var colors = [];
         for(var i=0; i<geoSurface.attributes.position.length; i++){
             colors[ i ] = new THREE.Color( 0xffffff );
             colors[ i ].setHSL( 0.6, 1.0, Math.max( 0, ( 200 - i ) / 400 ) * 0.5 + 0.5 );
         }
         geoSurface.addAttribute( 'color', new THREE.BufferAttribute( new Float32Array( colors ), 3 ) );
+
+        var surface2 = new THREE.Mesh( geoSurface, new THREE.MeshBasicMaterial({color:scope.color, wireframe:true, vertexColors: THREE.VertexColors}));
         surface2.translateY( 0.5 );
         surface2.rotation.set(0, 0, Math.PI / 2);
         scope.add( surface2 );
+        scope.surface2 = surface2;
 
-        scope.add(scope.points);
-        scope.add(scope.curve);
+//         scope.add(scope.points);
+//         scope.add(scope.curve);
 //         scope.add(scope.surface);
     }
 
     function updateGeometries( values, angle, geoPoints, geoCurve, geoSurface ) {
         
-        var geoSurfacePosition = geoSurface.attributes.position.array,
-            spline = new THREE.ClosedSplineCurve3(scope.values),
-            maxNb = scope.values.length * scope.subd,
-            coeffFull = ((Math.PI * 2) / (scope.values.length * scope.subd)),
+        var v = geoSurface.attributes.position.array,
+            spline = new THREE.ClosedSplineCurve3(values),
+            maxNb = values.length * scope.subd,
+            coeffFull = ((Math.PI * 2) / (values.length * scope.subd)),
             coeff = 0, position = 0, index = 0
         ;
 
@@ -127,12 +131,43 @@ Volcano.Wave = function(conf) {
 
 
             // surface
-//             geoSurfacePosition[6*i].x = position.x; //Math.cos(coeff + Math.PI / 2) * (1 - (position.y * .1));
-//             geoSurfacePosition[6*i+1].y = position.y;
-//             geoSurfacePosition[6*i+2].z = position.z; //Math.sin(coeff + Math.PI / 2) * (1 - (position.y * .1));
+//             v[3*i+0].x = position.x;//Math.cos(coeff + Math.PI / 2) * (1 - (position.y * .1));
+//             v[3*i+1].y = position.y;
+//             v[3*i+2].z = position.z; //Math.sin(coeff + Math.PI / 2) * (1 - (position.y * .1));
+
         }
 
+        geoSurface.attributes.position.needsUpdate = true;
+
     }
+
+    setTimeout( function(){
+        var v = scope.surface2.geometry.attributes.position.array;
+
+        var len = 100; v.length/4;
+        var mat = new THREE.MeshBasicMaterial({color:0x22ff22});
+        var geo = new THREE.IcosahedronGeometry(.01,1);
+
+        for( var i = 0; i < len ; i++ ){
+
+            var ind = ~~( i*scope.subd/3 );
+//             var vx = v[ind];
+
+            var x = v[ind + 0],
+                y = v[ind + 1],
+                z = v[ind + 2];
+
+                console.log(x,y,z);
+            
+            var ball = new THREE.Mesh( geo.clone(), mat );
+            ball.position.set( x, y, z );            
+            var factor = Math.cos( Math.PI/2-Math.PI*( i/len ));
+            ball.scale.set( factor*.2, factor*1, factor*.2 );
+            ball.rotation.set(0, 0, Math.PI / 2);
+            scope.add( ball );
+            
+        }
+    }, 500);
 
     return this;
 };
