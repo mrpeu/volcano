@@ -16,7 +16,7 @@ var mouseX = 0, mouseY = 0,
 init();
 update(Date.now());
 
-orbitControls.position0.set(0,-1,20); orbitControls.target0.set(0,7.5,0); orbitControls.reset();
+// orbitControls.position0.set(0,-1,20); orbitControls.target0.set(0,7.5,0); orbitControls.reset();
 
 function init() {
 
@@ -132,8 +132,6 @@ function update( time ) {
 	var time_delta = time - time_last;
 
 	volcanoes.forEach( function( v ){ v.update( time_delta ) } );
-
-	orbitControls.update();
 
 	render( new Date(time), time_delta );
 

@@ -78,7 +78,7 @@ Volcano.Wave = function(conf) {
 
         scope.surface = new THREE.Mesh(geoSurface, scope.matSurface);
         scope.surface.translateY( 0.5 );
-        scope.surface.rotation.set(0, 0, Math.PI / 2);
+//         scope.surface.rotation.set(0, 0, Math.PI / 2);
 
         var colors = [];
         for(var i=0; i<geoSurface.attributes.position.length; i++){
@@ -88,7 +88,7 @@ Volcano.Wave = function(conf) {
         geoSurface.addAttribute( 'color', new THREE.BufferAttribute( new Float32Array( colors ), 3 ) );
 
         var surface2 = new THREE.Mesh( geoSurface, new THREE.MeshBasicMaterial({color:scope.color, wireframe:true, vertexColors: THREE.VertexColors}));
-        surface2.translateY( 0.5 );
+//         surface2.translateY( 0.5 );
         surface2.rotation.set(0, 0, Math.PI / 2);
         scope.add( surface2 );
         scope.surface2 = surface2;
@@ -100,74 +100,95 @@ Volcano.Wave = function(conf) {
 
     function updateGeometries( values, angle, geoPoints, geoCurve, geoSurface ) {
         
-        var v = geoSurface.attributes.position.array,
-            spline = new THREE.ClosedSplineCurve3(values),
-            maxNb = values.length * scope.subd,
-            coeffFull = ((Math.PI * 2) / (values.length * scope.subd)),
-            coeff = 0, position = 0, index = 0
-        ;
+//         var v = geoSurface.attributes.position.array,
+//             spline = new THREE.ClosedSplineCurve3(values),
+//             maxNb = values.length * scope.subd,
+//             coeffFull = ((Math.PI * 2) / (values.length * scope.subd)),
+//             coeff = 0, position = 0, index = 0
+//         ;
 
-        for (var i = 0; i < maxNb + 1; i++) {
+//         for (var i = 0; i < maxNb + 1; i++) {
 
-            index = i / maxNb;
-            position = spline.getPoint(index);
-            coeff = coeffFull * i;
+//             index = i / maxNb;
+//             position = spline.getPoint(index);
+//             coeff = coeffFull * i;
 
-            position.y = Math.max(0, position.y);
-            position.x = Math.cos(coeff) * (1 - (position.y * .1));
-            position.z = Math.sin(coeff) * (1 - (position.y * .1));
-
-
-//             // points
-            if ( (i % scope.subd) == 0) {
-                geoPoints.vertices[~~(i / scope.subd)] = new THREE.Vector3(position.x, position.y +.25, position.z);
-                geoPoints.colors[~~(i / scope.subd)] = new THREE.Color(scope.color);
-            }
+//             position.y = Math.max(0, position.y);
+//             position.x = Math.cos(coeff) * (1 - (position.y * .1));
+//             position.z = Math.sin(coeff) * (1 - (position.y * .1));
 
 
-//             // curve
-            geoCurve.vertices[i] = new THREE.Vector3(position.x, position.y, position.z);
-            geoCurve.colors[i] = new THREE.Color(scope.color);
+// //             // points
+//             if ( (i % scope.subd) == 0) {
+//                 geoPoints.vertices[~~(i / scope.subd)] = new THREE.Vector3(position.x, position.y +.25, position.z);
+//                 geoPoints.colors[~~(i / scope.subd)] = new THREE.Color(scope.color);
+//             }
 
 
-            // surface
-//             v[3*i+0].x = position.x;//Math.cos(coeff + Math.PI / 2) * (1 - (position.y * .1));
-//             v[3*i+1].y = position.y;
-//             v[3*i+2].z = position.z; //Math.sin(coeff + Math.PI / 2) * (1 - (position.y * .1));
+// //             // curve
+//             geoCurve.vertices[i] = new THREE.Vector3(position.x, position.y, position.z);
+//             geoCurve.colors[i] = new THREE.Color(scope.color);
 
-        }
 
-        geoSurface.attributes.position.needsUpdate = true;
+//             // surface
+// //             v[3*i+0].x = position.x;//Math.cos(coeff + Math.PI / 2) * (1 - (position.y * .1));
+// //             v[3*i+1].y = position.y;
+// //             v[3*i+2].z = position.z; //Math.sin(coeff + Math.PI / 2) * (1 - (position.y * .1));
+
+//         }
+
+//         geoSurface.attributes.position.needsUpdate = true;
 
     }
+
+
+
+
+//--------------
+// TEST
+//--------------
 
     setTimeout( function(){
         var v = scope.surface2.geometry.attributes.position.array;
 
-        var len = 100; v.length/4;
         var mat = new THREE.MeshBasicMaterial({color:0x22ff22});
         var geo = new THREE.IcosahedronGeometry(.01,1);
 
-        for( var i = 0; i < len ; i++ ){
+        var len = 10; //v.length/4;
+        var off = 5; //v.length/2;
 
-            var ind = ~~( i*scope.subd/3 );
+        for( var i = 0; i < len ; i+=3 ){
+
+            var ind = i;
 //             var vx = v[ind];
 
-            var x = v[ind + 0],
-                y = v[ind + 1],
-                z = v[ind + 2];
-
-                console.log(x,y,z);
+            var x = v[ind + 0 + off],
+                y = v[ind + 1 + off],
+                z = v[ind + 2 + off];
             
             var ball = new THREE.Mesh( geo.clone(), mat );
-            ball.position.set( x, y, z );            
-            var factor = Math.cos( Math.PI/2-Math.PI*( i/len ));
-            ball.scale.set( factor*.2, factor*1, factor*.2 );
-            ball.rotation.set(0, 0, Math.PI / 2);
-            scope.add( ball );
+            var factor = Math.cos( (Math.PI)*( i/len ) );
+
+            ball.position.set( y, x, z );
+            ball.rotation.set(0, 0, Math.PI/2);
+            ball.scale.set( factor*.75, factor*.2, factor*.2 );
             
+            v[ind + 0 + off] += (Math.random()-.5)*.5;
+
+            scope.add( ball );
+//             scope.rotateZ( Math.PI/2 );
         }
+
+        scope.surface2.geometry.attributes.position.needsUpdate = true;
+
     }, 500);
+
+//--------------
+// /TEST
+//--------------
+
+
+
 
     return this;
 };

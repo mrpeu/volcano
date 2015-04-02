@@ -139,7 +139,7 @@ function moveIt(mesh, time) {
 
         // PlaneBufferGeomtry
         var coords = mesh.geometry.attributes.position.array;
-        for ( var i = 2; i < mesh.geometry.attributes.position.length; i+=3 ) {
+        for ( var i = 2; i < 2033; i+=3 ) {
             coords[i] = getY( i );
         }
         mesh.geometry.attributes.position.needsUpdate = true;

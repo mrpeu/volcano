@@ -365,7 +365,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	this.getAzimuthalAngle = function () {
 
-		return theta
+		return theta;
 
 	};
 
@@ -484,6 +484,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 		document.removeEventListener( 'mouseup', onMouseUp, false );
 		scope.dispatchEvent( endEvent );
 		state = STATE.NONE;
+
+		scope.save();
 
 	}
 
@@ -686,6 +688,24 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	}
 
+	this.save = function() {
+		window.localStorage["oc"] = JSON.stringify({
+			position: { x: this.object.position.x, y: this.object.position.y, z: this.object.position.z},
+			target: { x: this.target.x, y: this.target.y, z: this.target.z}
+		});
+	};
+
+	this.load = function() {
+		var _oc = window.localStorage["oc"];
+		var oc = JSON.parse( _oc || "null" );
+		if(oc){
+			this.position0.set(oc.position.x, oc.position.y, oc.position.z);
+			this.target0.set(oc.target.x, oc.target.y, oc.target.z);
+			this.reset();
+		}
+		return oc;
+	}
+
 	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
 	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
 	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
@@ -697,6 +717,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	window.addEventListener( 'keydown', onKeyDown, false );
 
+	if( !this.load() )
 	// force an update at start
 	this.update();
 
