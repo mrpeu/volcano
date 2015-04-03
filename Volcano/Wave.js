@@ -14,7 +14,6 @@ Volcano.Wave = function(conf) {
 
     this.color = conf.color;
     this.subd = conf.subd || 10;
-    this.radius = conf.radius || 1;
     this.values = conf.values;
 
     this.points = null;
@@ -29,9 +28,6 @@ Volcano.Wave = function(conf) {
 //         	new THREE.BoxGeometry(1,1,1),
 //         	new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.BackSide})
 //         ));
-
-        scope.scale.set(scope.radius, 1, scope.radius);
-        scope.translateY(.51);
 
     }
 
@@ -79,7 +75,7 @@ Volcano.Wave = function(conf) {
         scope.curve = new THREE.Line( scope.curve.geometry, mats[1] ),
         scope.surface = new THREE.Mesh( scope.surface.geometry, mats[2] );
 
-        scope.surface.rotation.set( 0, Math.PI / 2, 0 );
+//         scope.surface.rotation.set( 0, Math.PI / 2, 0 );
 
         scope.add( scope.points );
         scope.add( scope.curve );
@@ -88,25 +84,28 @@ Volcano.Wave = function(conf) {
 
     function updateObjects( values ) {
 
-      var geoPoints = scope.points.geometry,
-          geoCurve = scope.curve.geometry,
-          geoSurface = scope.surface.geometry;
+      var geoPoints     = scope.points.geometry,
+          geoCurve      = scope.curve.geometry,
+          geoSurface    = scope.surface.geometry,
 
-      var spline = new THREE.ClosedSplineCurve3( scope.values ),
-          maxNb = values.length * scope.subd,
-          colPoints = new Array(scope.values.length), colCurve = new Array(maxNb),
-          coeffFullCircle = ((Math.PI * 2) / (scope.values.length * scope.subd)),
-          coeff = 0, position = 0, index = 0;
+          spline        = new THREE.ClosedSplineCurve3( scope.values ),
+          maxNb         = values.length * scope.subd,
+          colPoints     = new Array(values.length),
+          colCurve      = new Array(maxNb),
 
-      for (var i = 0; i < maxNb + 1; i++) {
+          position      = new THREE.Vector3(),
+          index         = 0,
+          i             = 0
+      ;
+
+      for ( i = 0; i < maxNb + 1; i++ ) {
 
           index = i / maxNb;
           position = spline.getPoint(index);
-          coeff = coeffFullCircle * i;
 
+          position.x = index; //Math.cos(coeff) * (1 - (position.y * .1));
+          position.z = 0; //Math.sin(coeff) * (1 - (position.y * .1));
           position.y = Math.max(0, position.y);
-          position.x = Math.cos(coeff) * (1 - (position.y * .1));
-          position.z = Math.sin(coeff) * (1 - (position.y * .1));
 
           // points
           if ( (i % scope.subd) == 0) {
@@ -119,9 +118,14 @@ Volcano.Wave = function(conf) {
           colCurve[i] = new THREE.Color(scope.color);
 
           // surface
-          geoSurface.vertices[maxNb - i].x = Math.cos(coeff + Math.PI / 2) * (1 - (position.y * .1));
-          geoSurface.vertices[maxNb - i].z = Math.sin(coeff + Math.PI / 2) * (1 - (position.y * .1));
-          geoSurface.vertices[maxNb - i].y = position.y;
+          geoSurface.vertices[i].x = position.x; //Math.cos(coeff + Math.PI / 2) * (1 - (position.y * .1));
+          geoSurface.vertices[i].z = position.z; //Math.sin(coeff + Math.PI / 2) * (1 - (position.y * .1));
+          geoSurface.vertices[i].y = position.y;
+
+          var v2 = geoSurface.vertices[i+maxNb+1];
+          v2.x = position.x; //Math.cos(coeff + Math.PI / 2) * (1 - (position.y * .1));
+          v2.z = position.z; //Math.sin(coeff + Math.PI / 2) * (1 - (position.y * .1));
+          v2.y = 0; //position.y-.75;
       }
 
       geoPoints.colors = geoCurve.colors = colCurve;

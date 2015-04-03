@@ -18,7 +18,9 @@ Volcano.Container = function( conf ) {
 
     this.createWave = function( conf ) {
 
-        var v = new Volcano.Wave({ values: conf.values, subd: conf.subd, color: conf.color, radius: conf.radius });
+        var v = new Volcano.Wave({ values: conf.values, subd: conf.subd, color: conf.color });
+
+        v.translateZ( scope.waves.length * .001 );
 
         scope.add( v );
         scope.waves.push( v );

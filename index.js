@@ -63,12 +63,12 @@ function init() {
 	var blue = 0x00beff,
 		red = 0xff4965;
 	var v0 = new Volcano.Container();
-	[   { values: dummyValues(25), color: red, radius: .99, subd: 10 },
-// 		{ values: dummyValues(25), color: red, radius: .95, subd: 10 },
-// 		{ values: dummyValues(25), color: red, radius: .90, subd: 10 },
-// 		{ values: dummyValues(10), color: blue, radius: .4, subd: 5 },
-// 		{ values: dummyValues(10), color: blue, radius: .3, subd: 5 },
-// 		{ values: dummyValues(10), color: blue, radius: .2, subd: 5 }
+	[   { values: dummyValues(25), color: red, subd: 10 },
+// 		{ values: dummyValues(25), color: red, subd: 10 },
+// 		{ values: dummyValues(25), color: red, subd: 10 },
+		{ values: dummyValues(10), color: blue, subd: 5 },
+// 		{ values: dummyValues(10), color: blue, subd: 5 },
+// 		{ values: dummyValues(10), color: blue, subd: 5 }
 	].forEach( v0.createWave );
 
 	v0.scale.set( 100, 20, 100 );
@@ -98,10 +98,10 @@ function init() {
 // 	scene.add( new THREE.PointLightHelper( lightP1, 20 ) );
 // 	scene.add( new THREE.PointLightHelper( lightA, 20 ) );
 
-
-
 	var axis = new THREE.AxisHelper( 50 );
 	scene.add( axis );
+
+
 
 
 	stats = new Stats();
