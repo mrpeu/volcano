@@ -23,15 +23,13 @@ Volcano.Container = function( conf ) {
         scope.add( v );
         scope.waves.push( v );
 
-        return v;
     };
 
     this.update = function( d ) {
 
-        scope.waves.forEach( function( w, i ){
-            w.update( d );
-           w.scale.setY( Math.abs( Math.cos( Date.now()*(.0005 * w.scale.x ) + i ) ) )
-        });
+//         scope.waves.forEach( function( w, i ){
+//            w.scale.setY( Math.abs( Math.cos( Date.now()*(.0005 * w.scale.x ) + i ) ) )
+//         });
 
     };
 
@@ -40,7 +38,6 @@ Volcano.Container = function( conf ) {
     }
 
     init();
-
 }
 
 Volcano.Container.prototype = Object.create( THREE.Group.prototype );
