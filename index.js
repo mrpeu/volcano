@@ -145,7 +145,6 @@ function render( time, delta ) {
 
     stats.update({
         t:		time.getMinutes()+':'+time.getSeconds()+':'+time.getMilliseconds(),
-        d:		time_delta,
         m:	~~mouseX+' : '+~~mouseY
     });
 

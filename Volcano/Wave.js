@@ -103,8 +103,8 @@ Volcano.Wave = function(conf) {
           index = i / maxNb;
           position = spline.getPoint(index);
 
-          position.x = index; //Math.cos(coeff) * (1 - (position.y * .1));
-          position.z = 0; //Math.sin(coeff) * (1 - (position.y * .1));
+          position.x = Math.cos(Math.PI*2*index); //Math.cos(coeff) * (1 - (position.y * .1));
+          position.z = Math.sin(Math.PI*2*index); //Math.sin(coeff) * (1 - (position.y * .1));
           position.y = Math.max(0, position.y);
 
           // points
